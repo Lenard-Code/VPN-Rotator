@@ -2,78 +2,79 @@
 
 ## Introduction
 
-This repository provides a flexible and scalable solution for routing traffic through multiple VPNs. It uses Docker to create a proxy that rotates requests across a series of VPN connections. This can be useful for a variety of tasks, including web scraping, bypassing geographic restrictions, and enhancing online privacy.
+This project provides a Docker-based solution for creating a rotating VPN proxy. It allows you to route your traffic through a pool of VPN connections, with each new connection using a different VPN provider.
 
 ## Why We Created This
 
-When conducting *authorized* phishing engagements, we need a solution to provide multiple source IPs to help obfuscate the true source and to further protect our Evilginx server. This project was designed to solve that problem by providing a simple, yet powerful, way to rotate through multiple VPN connections.
+When conducting **authorized** phishing engagements, it's crucial to have a solution that provides multiple source IPs to help obfuscate the true source of traffic and to further protect our infrastructure, such as an Evilginx server. This project was designed to meet that need by creating a simple, scalable, and effective way to rotate IP addresses.
 
 ## Features
 
-- **IP Rotation:** Automatically rotate your IP address with each new connection.
-- **Multiple VPN Providers:** Easily configure and use multiple VPN providers.
-- **Docker-Based:** The entire system is containerized with Docker, making it easy to deploy and manage.
-- **Extensible:** The project is designed to be easily extended with additional VPN providers or custom functionality.
+- **IP Rotation:** Automatically rotates your IP address for each new connection.
+- **Multiple VPN Providers:** Supports the use of multiple VPN providers simultaneously.
+- **Docker-based:** Easy to deploy and manage using Docker and Docker Compose.
+- **Extensible:** Can be easily extended to support additional VPN providers.
+- **Proxy Support:** Acts as a standard HTTP proxy that can be used with any application that supports proxies.
 
 ## How It Works
 
-The system is composed of two main services: the `frontend-rotator` and the `vpn-proxy`.
+The system is composed of two main components:
 
-- The `frontend-rotator` is a Python-based service that listens for incoming connections and forwards them to one of the `vpn-proxy` services.
-- The `vpn-proxy` services are Docker containers that each run a VPN client and a proxy server.
+- **`frontend-rotator`:** A Python-based service that listens for incoming connections and forwards them to one of the available `vpn-proxy` services. It uses a round-robin algorithm to distribute the connections among the VPNs.
+- **`vpn-proxy`:** A service that establishes a connection to a VPN provider using OpenVPN and forwards traffic from the `frontend-rotator` through the VPN tunnel.
 
-When a request is made to the `frontend-rotator`, it selects one of the `vpn-proxy` services and forwards the request to it. The `vpn-proxy` service then forwards the request to the destination, through the VPN connection.
+The `docker-compose.yml` file defines the services and their configurations. Each `vpn-proxy` service is configured with a specific VPN provider's OpenVPN configuration file and authentication credentials. The `frontend-rotator` service then routes traffic to these `vpn-proxy` services.
 
 ## Getting Started
 
 ### Prerequisites
 
-- Docker
-- Docker Compose
+- [Docker](https://docs.docker.com/get-docker/)
+- [Docker Compose](https://docs.docker.com/compose/install/)
 
-### Configuration
+### Installation
 
-1. **Clone the repository:**
-   ```
-   git clone https://github.com/Lenard-Code/VPN-Rotator.git
-   ```
-2. **Add your VPN configurations:**
-   - Add your OpenVPN configuration files to the `rotating-vpn-proxy/vpn-configs` directory.
-   - Add your VPN authentication files to the `rotating-vpn-proxy/vpn-auth` directory. Each VPN provider should have its own directory, with an `auth.txt` file containing the username and password on separate lines.
-3. **Configure the `docker-compose.yml` file:**
-   - The `docker-compose.yml` file in the `rotating-vpn-proxy` directory is pre-configured to use four VPN providers: NordVPN, PIA, HMA, and ExpressVPN. You can add, remove, or modify these services as needed.
-   - For each VPN service, you will need to specify the VPN configuration file and the authentication directory.
-
-### Launching the System
-
-Once you have configured the system, you can launch it with the following command:
-
-```
-docker-compose up -d
-```
+1.  **Clone the repository:**
+    ```
+    git clone https://github.com/Lenard-Code/VPN-Rotator.git
+    cd VPN-Rotator
+    ```
+2.  **Configure your VPN providers:**
+    - Place your OpenVPN configuration files (`.ovpn`) in the `rotating-vpn-proxy/vpn-configs` directory.
+    - For each VPN provider, create a corresponding directory in `rotating-vpn-proxy/vpn-auth` (e.g., `rotating-vpn-proxy/vpn-auth/nordvpn`).
+    - Inside each provider's auth directory, create a `auth.txt` file containing the username and password for the VPN service, each on a new line.
+3.  **Build and run the services:**
+    ```
+    docker-compose up --build
+    ```
 
 ## Security Considerations
 
 ### Access Control Lists (ACLs)
 
-It is critical that you configure appropriate Access Control Lists (ACLs) to protect your VPN-Rotator instance. You should only allow traffic from trusted sources to access the `frontend-rotator` service. If you are using this to protect an Evilginx Pro server, you should configure your ACLs to only allow traffic from the Evilginx Pro server.
+It is critical to set up appropriate Access Control Lists (ACLs) to ensure that only authorized systems can access the proxy. Without ACLs, the proxy could be used by unauthorized parties. You should configure your firewall or network security groups to restrict access to the `frontend-rotator`'s port (9000 by default) to only trusted IP addresses.
 
 ### HTTPS Proxy
 
-To further protect your Evilginx Pro server, you should incorporate an HTTPS proxy between the Evilginx Pro server and the `frontend-rotator`. This will encrypt the traffic between the two servers, making it more difficult for an attacker to intercept and analyze the traffic.
+For an additional layer of security, you can incorporate an HTTPS proxy. This can be done by setting up a reverse proxy (e.g., Nginx, Caddy, or Traefik) in front of the `frontend-rotator`. The reverse proxy can handle SSL termination and provide more advanced filtering and logging capabilities.
 
 ## Usage
 
-To use the VPN-Rotator, you can configure your applications or browser to use the `frontend-rotator` as a proxy. The `frontend-rotator` listens on port `9000` by default.
+Once the services are up and running, you can use the VPN Rotator by configuring your application or web browser to use the following proxy settings:
 
-## Extensibility
+-   **Proxy Type:** HTTP
+-   **Host:** `localhost`
+-   **Port:** `9000`
 
-The system is designed to be easily extended with additional VPN providers. To add a new VPN provider, you will need to:
+All traffic from your application will now be routed through the rotating VPN proxy.
 
-1. Add the OpenVPN configuration file to the `rotating-vpn-proxy/vpn-configs` directory.
-2. Add the authentication file to the `rotating-vpn-proxy/vpn-auth` directory.
-3. Add a new service to the `docker-compose.yml` file in the `rotating-vpn-proxy` directory.
+## Future Features
+
+Planned for future releases:
+
+-   **Proxy Service Integration:** We plan to add functionality to utilize other proxy services, such as residential proxies, in addition to VPNs.
+-   **Geolocation Matching:** We will be adding logic to identify the victim's source IP and match it with a VPN/Proxy location. This will help to circumvent geolocation-based conditional access policies and reduce the risk of being assigned a suspicious IP address.
 
 ## License
 
-This project is licensed under the MIT License. See the `LICENSE` file for more information.
+This project is licensed under the MIT License. See the [LICENSE](LICENSE) file for more details.
