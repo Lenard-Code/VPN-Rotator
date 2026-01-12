@@ -1,0 +1,119 @@
+version: '3.8'
+services:
+  squid-proxy:
+    image: sameersbn/squid:latest
+    container_name: squid-proxy
+    ports:
+      - "9001:3128"
+    restart: unless-stopped
+    environment:
+      - SQUID_CONFIG_FILE=/etc/squid/squid.conf
+    volumes:
+      - ./squid.conf:/etc/squid/squid.conf:ro
+########### NordVPN ###########
+  vpn-proxy-1:
+    build: ./vpn-proxy
+    environment:
+      - VPN_CONFIG=/vpn/us-test.nordvpn.com.udp.ovpn
+      - TINYPROXY_PORT=10001
+    volumes:
+      - ./vpn-configs/us-test.nordvpn.com.udp.ovpn:/vpn/us-test.nordvpn.com.udp.ovpn:ro
+      - ./vpn-auth/nordvpn:/vpn/auth:ro
+    ports:
+      - "10001:10001"
+    devices:
+      - /dev/net/tun:/dev/net/tun
+    cap_add:
+      - NET_ADMIN
+    restart: unless-stopped
+  vpn-proxy-2:
+    build: ./vpn-proxy
+    environment:
+      - VPN_CONFIG=/vpn/us-test.nordvpn.com.udp.ovpn
+      - TINYPROXY_PORT=10002
+    volumes:
+      - ./vpn-configs/us-test.nordvpn.com.udp.ovpn:/vpn/us-test.nordvpn.com.udp.ovpn:ro
+      - ./vpn-auth/nordvpn:/vpn/auth:ro
+    ports:
+      - "10002:10002"
+    devices:
+      - /dev/net/tun:/dev/net/tun
+    cap_add:
+      - NET_ADMIN
+    restart: unless-stopped
+########### PIA VPN ###########
+  vpn-proxy-3:
+    build: ./vpn-proxy
+    environment:
+      - VPN_CONFIG=/vpn/us-test.pia.com.udp.ovpn
+      - TINYPROXY_PORT=10003
+    volumes:
+      - ./vpn-configs/us-test.pia.com.udp.ovpn:/vpn/us-test.pia.com.udp.ovpn:ro
+      - ./vpn-auth/pia:/vpn/auth:ro
+    ports:
+      - "10003:10003"
+    devices:
+      - /dev/net/tun:/dev/net/tun
+    cap_add:
+      - NET_ADMIN
+    restart: unless-stopped
+  vpn-proxy-4:
+    build: ./vpn-proxy
+    environment:
+      - VPN_CONFIG=/vpn/us-den.pia.com.udp.ovpn
+      - TINYPROXY_PORT=10004
+    volumes:
+      - ./vpn-configs/us-test.pia.com.udp.ovpn:/vpn/us-test.pia.com.udp.ovpn:ro
+      - ./vpn-auth/pia:/vpn/auth:ro
+    ports:
+      - "10004:10004"
+    devices:
+      - /dev/net/tun:/dev/net/tun
+    cap_add:
+      - NET_ADMIN
+    restart: unless-stopped
+
+########### ExpressVPN ###########
+  vpn-proxy-5:
+    build: ./vpn-proxy
+    environment:
+      - VPN_CONFIG=/vpn/us-test.expressvpn.com.udp.ovpn
+      - TINYPROXY_PORT=10005
+    volumes:
+      - ./vpn-configs/us-test.expressvpn.com.udp.ovpn:/vpn/us-test.expressvpn.com.udp.ovpn:ro
+      - ./vpn-auth/expressvpn:/vpn/auth:ro
+    ports:
+      - "10005:10005"
+    devices:
+      - /dev/net/tun:/dev/net/tun
+    cap_add:
+      - NET_ADMIN
+    restart: unless-stopped
+  vpn-proxy-6:
+    build: ./vpn-proxy
+    environment:
+      - VPN_CONFIG=/vpn/us-test.expressvpn.com.udp.ovpn
+      - TINYPROXY_PORT=10006
+    volumes:
+      - ./vpn-configs/us-test.expressvpn.com.udp.ovpn:/vpn/us-test.expressvpn.com.udp.ovpn:ro
+      - ./vpn-auth/expressvpn:/vpn/auth:ro
+    ports:
+      - "10006:10006"
+    devices:
+      - /dev/net/tun:/dev/net/tun
+    cap_add:
+      - NET_ADMIN
+    restart: unless-stopped
+
+  frontend-rotator:
+    build: ./frontend-rotator
+    ports:
+      - "9000:9000"
+    depends_on:
+      - vpn-proxy-1
+      - vpn-proxy-2
+      - vpn-proxy-3
+      - vpn-proxy-4
+      - vpn-proxy-5
+      - vpn-proxy-6
+    restart: unless-stopped
