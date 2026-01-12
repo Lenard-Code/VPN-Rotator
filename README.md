@@ -4,9 +4,9 @@
 
 This project provides a Docker-based solution for creating a rotating VPN proxy. It allows you to route your traffic through a pool of VPN connections, with each new connection using a different VPN provider.
 
-## Why We Created This
+## Why?
 
-When conducting **authorized** phishing engagements, it's crucial to have a solution that provides multiple source IPs to help obfuscate the true source of traffic and to further protect our infrastructure, such as an Evilginx server. This project was designed to meet that need by creating a simple, scalable, and effective way to rotate IP addresses.
+When conducting **authorized** phishing engagements, it's crucial to have a solution that provides multiple source IPs to help obfuscate the true source of traffic and to further protect our infrastructure, such as an Evilginx server. This project was designed to meet that need by creating a simple, scalable, and effective way to rotate IP addresses. The more VPN providers added they better to further obfuscate Blue Teams ability to identify compromised accounts.
 
 ## Features
 
@@ -72,8 +72,9 @@ All traffic from your application will now be routed through the rotating VPN pr
 
 Planned for future releases:
 
--   **Proxy Service Integration:** We plan to add functionality to utilize other proxy services, such as residential proxies, in addition to VPNs.
--   **Geolocation Matching:** We will be adding logic to identify the victim's source IP and match it with a VPN/Proxy location. This will help to circumvent geolocation-based conditional access policies and reduce the risk of being assigned a suspicious IP address.
+-   **Proxy Service Integration:** A functionality to utilize other proxy services, such as residential proxies, in addition to VPNs.
+-   **Geolocation Matching:** Add logic to identify the victim's source IP and match it with a VPN/Proxy location. This will help to circumvent geolocation-based conditional access policies and reduce the risk of being assigned a suspicious IP address.
+-   **Logging:** Add additional logging to keep track of which OVPN profile was used for specific users.
 
 ## License
 
