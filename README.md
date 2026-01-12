@@ -6,7 +6,7 @@ This repository provides a flexible and scalable solution for routing traffic th
 
 ## Why We Created This
 
-When conducting authorized Red Team activities, we need a solution to provide multiple source IPs to help obfuscate the true source and to further protect our Evilginx server. This project was designed to solve that problem by providing a simple, yet powerful, way to rotate through multiple VPN connections.
+When conducting *authorized* phishing engagements, we need a solution to provide multiple source IPs to help obfuscate the true source and to further protect our Evilginx server. This project was designed to solve that problem by providing a simple, yet powerful, way to rotate through multiple VPN connections.
 
 ## Features
 
